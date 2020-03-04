@@ -1,0 +1,174 @@
+.test {
+  border: 1px solid red;
+}
+
+.hide {
+  display: none;
+}
+
+.rainbow-box {
+  @include rainbow-bar(gray, #b827fc, #2c90fc, #b8fd33, #fec837, #fd1892);
+  /* margin: 20px auto; */
+  width: 100%;
+}
+
+h1,
+h2 {
+  font-weight: bold;
+}
+.navbar {
+  padding: 0px !important;
+}
+
+.nav-item {
+  padding: 15px 5px;
+  margin: 0 10px;
+}
+
+.nav-link {
+  color: gray !important;
+  font-weight: bold;
+  font-size: 22px;
+  font-family: $font-family-title;
+
+  /* transition-duration: .8s; */
+}
+
+.nav-item:hover .nav-link:hover {
+  color: black !important;
+  font-weight: bold;
+}
+
+.nav-item::after {
+  content: "";
+  border-bottom: 2px solid black;
+  margin: auto;
+  position: relative;
+  width: 0%;
+  display: block;
+  transition: all 0.2s;
+}
+
+.nav-item:hover::after {
+  width: 100%;
+}
+
+.sticky {
+  // position: sticky;
+  top: 94px;
+  border: 1px solid red;
+  margin: 0 auto;
+  text-align: center !important;
+  width: 100% !important;
+  position: fixed;
+  right: 0;
+  left: 0;
+  z-index: 1030;
+}
+
+.font-title {
+  font-family: "Gentium Book Basic", serif;
+  font-size: 80px;
+}
+
+.banner::after {
+  content: "";
+  border-bottom: 2px solid gray;
+  display: block;
+  padding-bottom: 25px;
+}
+
+.banner::after {
+  content: "";
+  border-bottom: 2px solid gray;
+  display: block;
+  padding-bottom: 25px;
+}
+
+.content-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  // border: 1px solid red;
+  width: 100%;
+
+  @include l-mobile {
+    font-size: 10px;
+  }
+
+  h4 {
+    @include mobile {
+      font-size: 18px;
+    }
+  }
+}
+
+.banner-time-content {
+  @include l-mobile {
+    flex-direction: column;
+  }
+
+  @include mobile {
+    font-size: 18px;
+    flex-direction: column;
+  }
+}
+
+.sub-title {
+  font-family: $font-family-title;
+  font-weight: bold;
+  color: gray;
+}
+
+.menu {
+  border: 1.5px solid $cyan;
+  border-radius: 20px;
+  position: relative;
+  width: 70%;
+  // z-index: -1;
+
+  .menu-title {
+    position: absolute;
+    top: -16px;
+    left: 15px;
+    background-color: #fff;
+    font-size: 20px;
+    padding: 0 5px;
+    font-weight: bold;
+    color: $cyan;
+  }
+}
+
+.pagination {
+  margin-bottom: 0 !important;
+}
+
+.disable-checkbox {
+  background-color: rgb(200, 200, 200);
+}
+
+.over-temp {
+  color: red;
+}
+
+.over-ave-temp {
+  background-color: red;
+  color: white;
+}
+
+.trouble-note {
+  background-color: $gray-600;
+  color: white;
+}
+
+.signed-table-label {
+  background-color: rgb(153, 153, 153);
+}
+
+td {
+  white-space: nowrap;
+}
+.myclass {
+  position: sticky;
+}
