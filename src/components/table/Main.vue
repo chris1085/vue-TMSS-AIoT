@@ -7,10 +7,7 @@
         <h2>TMSS-AIoT</h2>
         <div class="d-flex justify-content-between h-100 banner-time-content pt-1">
           <h2 class="pt-2 sub-title">慧智臨床基因醫學實驗室</h2>
-          <span
-            class="nips-updatedTime"
-            style="display: inline-flex;align-items:flex-end ;"
-          >Last Updated:</span>
+          <span class="nips-updatedTime" style="display: inline-flex;align-items:flex-end ;">Last Updated:</span>
         </div>
       </div>
 
@@ -19,13 +16,7 @@
           <span style="font-size: 18px">樓層：</span>
           <div class="btn-group btn-group-toggle mr-4" data-toggle="buttons">
             <label class="btn btn-outline-info" v-for="(item, index) in floor" :key="index">
-              <input
-                type="checkbox"
-                name="options"
-                :checked="index === 0"
-                :value="item"
-                v-model="floorArray"
-              />
+              <input type="checkbox" name="options" :checked="index === 0" :value="item" v-model="floorArray" />
               <!-- <input type="checkbox" name="options" v-if="index !== 0" /> -->
               {{ item }}
             </label>
@@ -33,18 +24,8 @@
 
           <span style="font-size: 18px">溫度：</span>
           <div class="btn-group btn-group-toggle mr-2" data-toggle="buttons">
-            <label
-              class="btn btn-outline-info active"
-              v-for="(item, index) in temperature"
-              :key="index"
-            >
-              <input
-                type="checkbox"
-                name="options"
-                :checked="index === 0"
-                :value="item"
-                v-model="tempArray"
-              />
+            <label class="btn btn-outline-info active" v-for="(item, index) in temperature" :key="index">
+              <input type="checkbox" name="options" :checked="index === 0" :value="item" v-model="tempArray" />
               <!-- <input type="checkbox" name="options" v-else /> -->
               {{ item }}
             </label>
@@ -55,13 +36,7 @@
           <span style="font-size: 18px">負責人：</span>
           <div class="btn-group btn-group-toggle mr-2" data-toggle="buttons">
             <label class="btn btn-outline-info active" v-for="(item, index) in owner" :key="index">
-              <input
-                type="checkbox"
-                name="options"
-                :checked="index === 0"
-                :value="item"
-                v-model="ownerArray"
-              />
+              <input type="checkbox" name="options" :checked="index === 0" :value="item" v-model="ownerArray" />
               <!-- <input type="checkbox" name="options" v-else /> -->
               {{ item }}
             </label>
@@ -145,14 +120,16 @@
       </div>
       <div class="table-responsive pb-1">
         <table class="table table-bordered text-center table-hover">
-          <caption>{{chooseTime}}</caption>
+          <caption>
+            {{
+              chooseTime
+            }}
+          </caption>
           <thead>
             <tr style="font-weight:bold; font-size:24px;">
-              <th
-                width="100%"
-                scope="col"
-                :colspan="tempData[0].queryResult.length * 3 + 7"
-              >人工智慧即時溫度監控簽核表單</th>
+              <th width="100%" scope="col" :colspan="tempData[0].queryResult.length * calcResult(resultForamt) + 7">
+                人工智慧即時溫度監控簽核表單
+              </th>
             </tr>
           </thead>
           <thead>
@@ -163,10 +140,12 @@
               <th scope="col" rowspan="2" class="align-middle">Temp</th>
               <th
                 scope="col"
-                colspan="3"
-                v-for="(n,index) in tempData[0].queryResult"
+                :colspan="calcResult(resultForamt)"
+                v-for="(n, index) in tempData[0].queryResult"
                 :key="index"
-              >{{n.date}}</th>
+              >
+                {{ n.date }}
+              </th>
               <th scope="col" rowspan="2" class="align-middle">Status</th>
               <th scope="col" rowspan="2" class="align-middle">Note</th>
               <th scope="col" rowspan="2" class="align-middle">
@@ -175,62 +154,80 @@
               </th>
             </tr>
             <tr>
-              <th scope="col" v-for="(n,index) in tempData[0].queryResult.length * 3" :key="index">
-                <span v-if="index % 3 == 1">Ave</span>
-                <span v-if="index % 3 == 2">Min</span>
-                <span v-if="index % 3 == 0">Max</span>
+              <th
+                scope="col"
+                v-for="(n, index) in tempData[0].queryResult.length * calcResult(resultForamt)"
+                :key="index"
+              >
+                <span v-if="index % 3 == 1 || calcResult(resultForamt) == 1">Ave</span>
+                <span v-if="index % 3 == 2 && calcResult(resultForamt) == 3">Min</span>
+                <span v-if="index % 3 == 0 && calcResult(resultForamt) == 3">Max</span>
               </th>
             </tr>
           </thead>
-          <tbody v-for="(nodes,index) in filterArray" :key="index">
+          <tbody v-for="(nodes, index) in filterArray" :key="index">
             <tr>
-              <td class="align-middle">{{nodes.node}}</td>
-              <td class="align-middle">{{nodes.floor}}</td>
-              <td class="align-middle">{{nodes.owner}}</td>
-              <td class="align-middle">{{nodes.temp}}</td>
-              <template v-for="(qrs,index) in nodes.queryResult">
+              <td class="align-middle">{{ nodes.node }}</td>
+              <td class="align-middle">{{ nodes.floor }}</td>
+              <td class="align-middle">{{ nodes.owner }}</td>
+              <td class="align-middle">{{ nodes.temp }}</td>
+              <template v-for="(qrs, index) in nodes.queryResult">
                 <td
                   :key="'max' + index"
-                  :class="{'over-temp': qrs.max>6}"
+                  :class="{ 'over-temp': qrs.max > 6 }"
                   class="align-middle"
-                  v-if="qrs.max != ''"
-                >{{qrs.max}}</td>
+                  v-if="qrs.max != '' && calcResult(resultForamt) == 3"
+                >
+                  {{ qrs.max }}
+                </td>
                 <td
                   :key="'ave' + index"
-                  :class="{'over-ave-temp': (qrs.ave > 5 || qrs.ave < 3) && qrs.ave != ''}"
+                  :class="{
+                    'over-ave-temp': (qrs.ave > 5 || qrs.ave < 3) && qrs.ave != ''
+                  }"
                   class="align-middle"
                   v-if="qrs.ave != ''"
-                >{{qrs.ave}}</td>
+                >
+                  {{ qrs.ave }}
+                </td>
                 <td
                   :key="'min' + index"
-                  :class="{'over-temp': qrs.min < 2 && qrs.min != ''}"
+                  :class="{ 'over-temp': qrs.min < 2 && qrs.min != '' }"
                   class="align-middle"
-                  v-if="qrs.min != ''"
-                >{{qrs.min}}</td>
+                  v-if="qrs.min != '' && calcResult(resultForamt) == 3"
+                >
+                  {{ qrs.min }}
+                </td>
 
                 <td
                   :key="'max' + index"
-                  :class="{'over-temp': qrs.max>6}"
+                  :class="{ 'over-temp': qrs.max > 6 }"
                   class="align-middle"
-                  v-if="qrs.max === ''"
-                >-</td>
+                  v-if="qrs.max === '' && calcResult(resultForamt) == 3"
+                >
+                  -
+                </td>
                 <td
                   :key="'ave' + index"
-                  :class="{'over-ave-temp': (qrs.ave > 5 || qrs.ave < 3) && qrs.ave != ''}"
+                  :class="{
+                    'over-ave-temp': (qrs.ave > 5 || qrs.ave < 3) && qrs.ave != ''
+                  }"
                   class="align-middle"
                   v-if="qrs.ave === ''"
-                >{{qrs.note}}</td>
+                >
+                  {{ qrs.note }}
+                </td>
                 <td
                   :key="'min' + index"
-                  :class="{'over-temp': qrs.min < 2 && qrs.min != ''}"
+                  :class="{ 'over-temp': qrs.min < 2 && qrs.min != '' }"
                   class="align-middle"
-                  v-if="qrs.min === ''"
-                >-</td>
+                  v-if="qrs.min === '' && calcResult(resultForamt) == 3"
+                >
+                  -
+                </td>
               </template>
-              <!-- <td v-for="(qrs,qrsIndex) in nodes.queryResult" :key="qrsIndex">{{qrs.ave}}</td> -->
-              <!-- <td v-for="(qrs,qrsIndex) in nodes.queryResult" :key="qrsIndex">{{qrs.min}}</td> -->
-              <td class="align-middle">{{statusCheck(nodes)}}</td>
-              <td width="10%" class="align-middle">{{noteCheck(nodes)}}</td>
+              <td class="align-middle">{{ statusCheck(nodes) }}</td>
+              <td width="10%" class="align-middle">{{ noteCheck(nodes) }}</td>
               <td scope="row" class="align-middle">
                 <input
                   type="checkbox"
@@ -245,7 +242,7 @@
       </div>
       <div class="d-flex pb-5">
         <div class="download ml-auto">
-          <button type="button" class="btn btn-info">Signed</button>
+          <button type="button" class="btn btn-info" @click.prevent="signSelect">Sign</button>
         </div>
       </div>
     </div>
@@ -300,6 +297,16 @@ export default {
 
       return this.chooseTime;
     },
+    calcResult(result) {
+      // console.log(result, this.chooseTime);
+      if (this.chooseTime === "週報表") {
+        result = 3;
+      } else {
+        result = 1;
+      }
+
+      return result;
+    },
     statusCheck: function(nodes) {
       let dateNmuber = nodes.queryResult.length;
       let signedNumber = 0;
@@ -314,11 +321,7 @@ export default {
       });
       console.log(dateNmuber, signedNumber);
       if (dateNmuber === signedNumber) {
-        return (
-          nodes.queryResult[0].statusOwner +
-          " " +
-          nodes.queryResult[0].statusDate.slice(-5)
-        );
+        return nodes.queryResult[0].statusOwner + " " + nodes.queryResult[0].statusDate.slice(-5);
       } else {
         return "Unsigned";
       }
@@ -355,6 +358,11 @@ export default {
     }
   },
   computed: {
+    signSelect: function() {
+      let vm = this;
+
+      return vm.tempData;
+    },
     filterArray: function() {
       let vm = this;
       // let filterTempArray = [];
@@ -457,6 +465,7 @@ export default {
   },
   data() {
     return {
+      resultForamt: 3,
       datepickerType: "week",
       datepickerPlaceholder: "Select week",
       ownerArray: ["All"],
