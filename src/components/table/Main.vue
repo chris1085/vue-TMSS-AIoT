@@ -7,10 +7,7 @@
         <h2>TMSS-AIoT</h2>
         <div class="d-flex justify-content-between h-100 banner-time-content pt-1">
           <h2 class="pt-2 sub-title">慧智臨床基因醫學實驗室</h2>
-          <span
-            class="nips-updatedTime"
-            style="display: inline-flex;align-items:flex-end ;"
-          >Last Updated:</span>
+          <span class="nips-updatedTime" style="display: inline-flex;align-items:flex-end ;">Last Updated:</span>
         </div>
       </div>
 
@@ -19,12 +16,7 @@
           <span style="font-size: 18px">樓層：</span>
           <div class="btn-group btn-group-toggle mr-4" data-toggle="buttons">
             <label class="btn btn-outline-info active" id="floorAll">
-              <input
-                type="checkbox"
-                name="options"
-                @click="checkFloorAll()"
-                v-model="isCheckFloorAll"
-              />All
+              <input type="checkbox" name="options" @click="checkFloorAll()" v-model="isCheckFloorAll" />All
             </label>
             <label
               class="btn btn-outline-info active"
@@ -42,12 +34,7 @@
           <span style="font-size: 18px">溫度：</span>
           <div class="btn-group btn-group-toggle mr-2" data-toggle="buttons">
             <label class="btn btn-outline-info active" id="tempAll">
-              <input
-                type="checkbox"
-                name="options"
-                @click="checkTempAll()"
-                v-model="isCheckTempAll"
-              />
+              <input type="checkbox" name="options" @click="checkTempAll()" v-model="isCheckTempAll" />
               All
             </label>
             <label
@@ -68,20 +55,10 @@
           <span style="font-size: 18px">負責人：</span>
           <div class="btn-group btn-group-toggle mr-2" data-toggle="buttons">
             <label class="btn btn-outline-info active" id="ownerAll">
-              <input
-                type="checkbox"
-                name="options"
-                @click="checkOwnerAll()"
-                v-model="isCheckOwnerAll"
-              />
+              <input type="checkbox" name="options" @click="checkOwnerAll()" v-model="isCheckOwnerAll" />
               All
             </label>
-            <label
-              class="btn btn-outline-info active"
-              v-for="(item, index) in owner"
-              :key="index"
-              :id="item"
-            >
+            <label class="btn btn-outline-info active" v-for="(item, index) in owner" :key="index" :id="item">
               <input
                 type="checkbox"
                 name="options"
@@ -174,20 +151,21 @@
         </div>
         <!-- <div v-for="(n,index) in tempData[0].queryResult" :key="n">{{index}}</div> -->
       </div>
+      <div class="py-3" v-if="queryMessage !== ''">
+        <h3>{{ queryMessage }}</h3>
+      </div>
       <div class="table-responsive pb-1">
         <table class="table table-bordered text-center table-hover">
           <caption>
             {{
-            chooseTime
+              chooseTime
             }}
           </caption>
           <thead>
             <tr style="font-weight:bold; font-size:24px;">
-              <th
-                width="100%"
-                scope="col"
-                :colspan="tempData[0].queryResult.length * calcResult(resultForamt) + 7"
-              >人工智慧即時溫度監控簽核表單</th>
+              <th width="100%" scope="col" :colspan="tempData[0].queryResult.length * calcResult(resultForamt) + 7">
+                人工智慧即時溫度監控簽核表單
+              </th>
             </tr>
           </thead>
           <thead>
@@ -201,7 +179,9 @@
                 :colspan="calcResult(resultForamt)"
                 v-for="(n, index) in tempData[0].queryResult"
                 :key="index"
-              >{{ n.date }}</th>
+              >
+                {{ n.date }}
+              </th>
               <th scope="col" rowspan="2" class="align-middle">Status</th>
               <th scope="col" rowspan="2" class="align-middle">Note</th>
               <th scope="col" rowspan="2" class="align-middle">
@@ -233,7 +213,9 @@
                   :class="{ 'over-temp': qrs.max > 6 }"
                   class="align-middle"
                   v-if="qrs.max != '' && calcResult(resultForamt) == 3"
-                >{{ qrs.max }}</td>
+                >
+                  {{ qrs.max }}
+                </td>
                 <td
                   :key="'ave' + index"
                   :class="{
@@ -241,20 +223,26 @@
                   }"
                   class="align-middle"
                   v-if="qrs.ave != ''"
-                >{{ qrs.ave }}</td>
+                >
+                  {{ qrs.ave }}
+                </td>
                 <td
                   :key="'min' + index"
                   :class="{ 'over-temp': qrs.min < 2 && qrs.min != '' }"
                   class="align-middle"
                   v-if="qrs.min != '' && calcResult(resultForamt) == 3"
-                >{{ qrs.min }}</td>
+                >
+                  {{ qrs.min }}
+                </td>
 
                 <td
                   :key="'max' + index"
                   :class="{ 'over-temp': qrs.max > 6 }"
                   class="align-middle"
                   v-if="qrs.max === '' && calcResult(resultForamt) == 3"
-                >-</td>
+                >
+                  -
+                </td>
                 <td
                   :key="'ave' + index"
                   :class="{
@@ -262,13 +250,17 @@
                   }"
                   class="align-middle"
                   v-if="qrs.ave === ''"
-                >{{ qrs.note }}</td>
+                >
+                  {{ qrs.note }}
+                </td>
                 <td
                   :key="'min' + index"
                   :class="{ 'over-temp': qrs.min < 2 && qrs.min != '' }"
                   class="align-middle"
                   v-if="qrs.min === '' && calcResult(resultForamt) == 3"
-                >-</td>
+                >
+                  -
+                </td>
               </template>
               <td class="align-middle status">{{ statusCheck(nodes) }}</td>
               <td class="align-middle">{{ noteCheck(nodes) }}</td>
@@ -297,6 +289,7 @@
 <script>
 import DatePicker from "vue2-datepicker";
 import "vue2-datepicker/index.css";
+import axios from "axios";
 import $ from "jquery";
 
 // $(function() {
@@ -329,11 +322,7 @@ export default {
 
     let currDateFormat = new Date(currDate).toISOString().slice(0, 10);
     let lastDate = new Date(
-      currDateFormat.split("-")[0] +
-        "-" +
-        currDateFormat.split("-")[1] +
-        "-" +
-        ("0" + (diff + 6)).slice(-2)
+      currDateFormat.split("-")[0] + "-" + currDateFormat.split("-")[1] + "-" + ("0" + (diff + 6)).slice(-2)
     )
       .toISOString()
       .slice(0, 10);
@@ -346,6 +335,24 @@ export default {
 
     let firstDay = new Date(currDate.setDate(diff)).toISOString().slice(0, 10);
     // this.dateQuery = { begin: firstDay, end: lastDate };
+
+    // axios
+    //   .get("ajaxfile.php", {
+    //     params: {
+    //       fromdate: firstDay,
+    //       todate: lastDate
+    //     }
+    //   })
+    //   .then(function(response) {
+    //     this.tempData = response.data;
+
+    //     if (this.tempData.length == 0) {
+    //       this.queryMessage = "目前沒有 " + firstDay + " 至 " +lastDate + " 的資料，請重新搜尋！";
+    //     }
+    //   })
+    //   .catch(function(error) {
+    //     console.log(error);
+    //   });
     console.log(firstDay, lastDate, currDateFormat);
   },
   methods: {
@@ -396,11 +403,7 @@ export default {
       });
       // console.log(dateNmuber, signedNumber);
       if (dateNmuber === signedNumber) {
-        return (
-          nodes.queryResult[0].statusOwner +
-          " " +
-          nodes.queryResult[0].statusDate.slice(-5)
-        );
+        return nodes.queryResult[0].statusOwner + " " + nodes.queryResult[0].statusDate.slice(-5);
       } else {
         return "Unsigned";
       }
@@ -510,10 +513,7 @@ export default {
     overTime: function(queryResult) {
       let queryData = queryResult[0];
       let dateArray = queryData.date.split("/");
-      let queryDateEpoche =
-        new Date(
-          dateArray[0] + "-" + dateArray[1] + "-" + dateArray[2]
-        ).getTime() / 1000;
+      let queryDateEpoche = new Date(dateArray[0] + "-" + dateArray[1] + "-" + dateArray[2]).getTime() / 1000;
       const now = Date.now() / 1000; // Unix timestamp in seconds
       let interval = now - queryDateEpoche;
       // console.log(now, queryDateEpoche, interval, dateArray);
@@ -533,11 +533,7 @@ export default {
           let day = d.getDay(),
             diff = d.getDate() - day + (day == 0 ? -6 : 0);
           let endDate = new Date(
-            dateChoosed.split("-")[0] +
-              "-" +
-              dateChoosed.split("-")[1] +
-              "-" +
-              ("0" + (diff + 6)).slice(-2)
+            dateChoosed.split("-")[0] + "-" + dateChoosed.split("-")[1] + "-" + ("0" + (diff + 6)).slice(-2)
           )
             .toISOString()
             .slice(0, 10);
@@ -549,12 +545,8 @@ export default {
           this.dateQuery = { begin: firstDay, end: endDate };
           console.log(dateChoosed, firstDay, endDate, curDate);
         } else if (this.datepickerType === "month") {
-          let firstDay = new Date(d.getFullYear(), d.getMonth(), 2)
-            .toISOString()
-            .slice(0, 10);
-          let lastDay = new Date(d.getFullYear(), d.getMonth() + 1, 1)
-            .toISOString()
-            .slice(0, 10);
+          let firstDay = new Date(d.getFullYear(), d.getMonth(), 2).toISOString().slice(0, 10);
+          let lastDay = new Date(d.getFullYear(), d.getMonth() + 1, 1).toISOString().slice(0, 10);
           let curDate = new Date().toISOString().slice(0, 10);
 
           if (curDate < lastDay) {
@@ -565,6 +557,17 @@ export default {
           console.log(firstDay, lastDay);
         }
       }
+    },
+    postData: function(data) {
+      let dataStringify = JSON.stringify(data);
+      axios
+        .post("url/users", dataStringify)
+        .then(res => {
+          console.table(res.data);
+        })
+        .catch(error => {
+          console.error(error);
+        });
     },
     signSelect: function() {
       let vm = this;
@@ -581,14 +584,9 @@ export default {
             .siblings(".status")
             .text(vm.userInfo.name + " " + month + "/" + day);
 
-          for (
-            let i = 0;
-            i < vm.tempData[$(el).val()].queryResult.length;
-            i++
-          ) {
+          for (let i = 0; i < vm.tempData[$(el).val()].queryResult.length; i++) {
             vm.tempData[$(el).val()].queryResult[i].status = "signed";
-            vm.tempData[$(el).val()].queryResult[i].statusOwner =
-              vm.userInfo.name;
+            vm.tempData[$(el).val()].queryResult[i].statusOwner = vm.userInfo.name;
             vm.tempData[$(el).val()].queryResult[i].statusDate = signDate;
           }
           // vm.tempData[$(el).val()].queryResult.status = "signed";
@@ -600,6 +598,7 @@ export default {
         }
       });
       console.log(vm.newTempData);
+      this.postData(vm.newTempData);
     }
   },
   computed: {
@@ -665,7 +664,7 @@ export default {
       isCheckFloorAll: true,
       isCheckTempAll: true,
       isCheckOwnerAll: true,
-
+      queryMessage: "",
       resultForamt: 3,
       datepickerType: "week",
       datepickerPlaceholder: "Select week",
