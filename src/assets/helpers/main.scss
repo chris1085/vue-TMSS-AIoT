@@ -172,3 +172,15 @@ td {
 .myclass {
   position: sticky;
 }
+
+.btn-outline-info:not(:disabled):not(.disabled):active,
+.btn-outline-info:not(:disabled):not(.disabled).active,
+.show > .btn-outline-info.dropdown-toggle {
+  color: #fff;
+  background-color: #17a2b8;
+  border-color: $secondary;
+}
+
+.over-date {
+  background-color: rgb(255, 223, 117);
+}
