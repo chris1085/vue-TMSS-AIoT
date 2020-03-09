@@ -108,27 +108,8 @@
             :format="datapickerFormatOutput"
             @change="selectDate"
           ></date-picker>
-
-          <!-- <date-picker v-model="value2" type="month" placeholder="Select month"></date-picker> -->
-
-          <!-- <date-picker
-            v-model="value3"
-            type="week"
-            :disabled-date="notAfterToday"
-            placeholder="Select week"
-            class="px-3"
-          ></date-picker>-->
-
-          <!-- <date-picker
-            v-model="value2"
-            type="date"
-            range
-            :disabled-date="notAfterToday"
-            class="pr-3 col-10"
-          ></date-picker>-->
-          <!-- <span>{{ value3 }}</span> -->
         </div>
-        <div class="d-flex align-items-center">
+        <!-- <div class="d-flex align-items-center">
           <nav aria-label="Page navigation example d-flex align-items-center">
             <ul class="pagination">
               <li class="page-item">
@@ -143,7 +124,7 @@
               </li>
             </ul>
           </nav>
-        </div>
+        </div> -->
         <div class="d-flex align-middle ml-auto text-center justify-content-center">
           <div class="download">
             <button type="button" class="btn btn-info">Download</button>
@@ -203,7 +184,7 @@
           </thead>
           <tbody v-for="(nodes, index) in filterArray" :key="index">
             <tr :class="{ 'over-date': overTime(nodes.queryResult) === true }">
-              <td class="align-middle">{{ nodes.node }}</td>
+              <td class="align-middle node">{{ nodes.node }}</td>
               <td class="align-middle">{{ nodes.floor }}</td>
               <td class="align-middle">{{ nodes.owner }}</td>
               <td class="align-middle">{{ nodes.temp }}</td>
@@ -316,7 +297,7 @@ export default {
   components: { DatePicker },
   created() {
     let currDate = new Date();
-    console.log(currDate);
+    // console.log(currDate);
     let day = currDate.getDay(),
       diff = currDate.getDate() - day + (day == 0 ? -6 : 0);
 
@@ -333,7 +314,7 @@ export default {
 
     // console.log(currDateFormat, day, diff, lastDate);
 
-    let firstDay = new Date(currDate.setDate(diff)).toISOString().slice(0, 10);
+    // let firstDay = new Date(currDate.setDate(diff)).toISOString().slice(0, 10);
     // this.dateQuery = { begin: firstDay, end: lastDate };
 
     // axios
@@ -353,7 +334,7 @@ export default {
     //   .catch(function(error) {
     //     console.log(error);
     //   });
-    console.log(firstDay, lastDate, currDateFormat);
+    // console.log(firstDay, lastDate, currDateFormat);
   },
   methods: {
     notAfterToday(date) {
@@ -576,29 +557,36 @@ export default {
       let month = ("0" + (currDate.getMonth() + 1)).slice(-2);
       let day = ("0" + currDate.getDate()).slice(-2);
       let signDate = year + "/" + month + "/" + day;
+      // vm.tempData.sort((a, b) => parseInt(a.node) - parseInt(b.node));
       $("input[name='checkbox[]']").each(function(index, el) {
         if (!el.disabled && el.checked) {
+          let nodeName = $(this)
+            .parent()
+            .siblings(".node")
+            .text();
+
           $(this).prop("disabled", true);
+
           $(this)
             .parent()
             .siblings(".status")
             .text(vm.userInfo.name + " " + month + "/" + day);
 
-          for (let i = 0; i < vm.tempData[$(el).val()].queryResult.length; i++) {
-            vm.tempData[$(el).val()].queryResult[i].status = "signed";
-            vm.tempData[$(el).val()].queryResult[i].statusOwner = vm.userInfo.name;
-            vm.tempData[$(el).val()].queryResult[i].statusDate = signDate;
+          for (let nodeIndex = 0; nodeIndex < vm.tempData.length; nodeIndex++) {
+            if (vm.tempData[nodeIndex].node === nodeName) {
+              for (let i = 0; i < vm.tempData[nodeIndex].queryResult.length; i++) {
+                vm.tempData[nodeIndex].queryResult[i].status = "signed";
+                vm.tempData[nodeIndex].queryResult[i].statusOwner = vm.userInfo.name;
+                vm.tempData[nodeIndex].queryResult[i].statusDate = signDate;
+              }
+              break;
+            }
           }
-          // vm.tempData[$(el).val()].queryResult.status = "signed";
-          // vm.tempData[$(el).val()].queryResult.statusOwner = vm.userInfo.name;
-          // vm.tempData[$(el).val()].queryResult.statusDate = signDate;
-
           vm.newTempData.push(vm.tempData[$(el).val()]);
-          // console.log($(el).val());
         }
       });
-      console.log(vm.newTempData);
-      this.postData(vm.newTempData);
+      // console.log(vm.newTempData);
+      // vm.postData(vm.newTempData);
     }
   },
   computed: {
