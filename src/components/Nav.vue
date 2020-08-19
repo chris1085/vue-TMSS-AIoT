@@ -21,10 +21,14 @@
         <div class="collapse navbar-collapse" id="collapsibleNavId">
           <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
             <li class="nav-item active mr-2">
-              <router-link class="nav-link active" :to="{ name: 'Table' }">報表</router-link>
+              <router-link class="nav-link active" :to="{ name: 'Table' }"
+                >報表</router-link
+              >
             </li>
             <li class="nav-item active mr-2">
-              <router-link class="nav-link" :to="{ name: 'Plot' }">圖表</router-link>
+              <router-link class="nav-link" :to="{ name: 'Plot' }"
+                >圖表</router-link
+              >
             </li>
           </ul>
           <div class="user-icon pr-3">
@@ -43,8 +47,8 @@
               登入
             </button> -->
 
-            <span>{{ childValue }}</span>
-            <input type="button" value="點選觸發" @click="childClick" />
+            <!-- <span>{{ childValue }}</span>
+            <input type="button" value="點選觸發" @click="childClick" /> -->
             <!-- <GoogleLogin
               class="btn btn-outline-primary my-2 my-sm-0 mr-1"
               type="submit"
@@ -79,15 +83,16 @@
 <script>
 // import GoogleLogin from 'vue-google-login';
 export default {
-  name: 'Nav',
+  name: "Nav",
   data() {
     return {
-      text: 'test',
-      userName: '',
-      childValue: '我是子元件的資料',
+      text: "test",
+      userName: "",
+      childValue: "我是子元件的資料",
       // client_id is the only required property but you can add several more params, full list down bellow on the Auth api section
       params: {
-        client_id: '685519562273-1g8u1nu7slt7gc50b12i0nfn3hv7obci.apps.googleusercontent.com'
+        client_id:
+          "685519562273-1g8u1nu7slt7gc50b12i0nfn3hv7obci.apps.googleusercontent.com"
       }
       // only needed if you want to render the button with the google ui
       // renderParams: {
@@ -113,7 +118,7 @@ export default {
     childClick() {
       // childByValue是在父元件on監聽的方法
       // 第二個引數this.childValue是需要傳的值
-      this.$emit('childByValue', this.childValue);
+      this.$emit("childByValue", this.childValue);
     }
   }
 };

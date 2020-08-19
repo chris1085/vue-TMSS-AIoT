@@ -32,7 +32,7 @@
 =            rainbow bar start                =
 =============================================*/
 
-@mixin rainbow-bar($color0, $color20, $color40, $color60, $color80, $color100) {
+@mixin rainbowbar($color0, $color20, $color40, $color60, $color80, $color100) {
   // background-color: #302244;
   border-bottom: 4px solid transparent;
   border-image: linear-gradient(
