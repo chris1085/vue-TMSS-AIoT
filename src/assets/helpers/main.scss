@@ -194,23 +194,23 @@ td {
   background-color: rgb(255, 223, 117);
 }
 
-.table-fixed {
-  overflow-y: auto;
-  // height: 300px;
-}
+// .table-fixed {
+//   overflow-y: auto;
+//   // height: 300px;
+// }
 
-.tableFixHead thead th {
-  position: sticky;
-  top: 0;
-}
+// .tableFixHead thead th {
+//   position: sticky;
+//   top: 0;
+// }
 
-tbody tr td:nth-child(1) {
-  position: -webkit-sticky;
-  position: sticky;
-  left: 0;
-  background-color: #fff;
-  z-index: 5;
-}
+// tbody tr td:nth-child(1) {
+//   position: -webkit-sticky;
+//   position: sticky;
+//   left: 0;
+//   background-color: #fff;
+//   z-index: 5;
+// }
 
 // tbody tr td:nth-child(2) {
 //   position: -webkit-sticky;

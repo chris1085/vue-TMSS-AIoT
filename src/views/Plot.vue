@@ -178,6 +178,7 @@ import Nav from "@/components/Nav.vue";
 import DatePicker from "vue2-datepicker";
 import "vue2-datepicker/index.css";
 import $ from "jquery";
+
 import axios from "axios";
 axios.defaults.withCredentials = false;
 import "vue-loading-overlay/dist/vue-loading.css";
@@ -377,7 +378,7 @@ export default {
           this.filterInfo.floor.forEach(el => {
             $("#" + el).addClass("active");
           });
-
+          // console.log(this.tempNodes);
           this.render(this.tempNodes);
         })
         .catch(err => {
@@ -394,7 +395,7 @@ export default {
       }
 
       data.forEach(function(item, index) {
-        console.log(item.id, item.ymax, item.ymin);
+        // console.log(item.id, item.ymax, item.ymin);
         // console.log(vm.chartOptions);
         vm.chartOptions[index] = {
           credits: {

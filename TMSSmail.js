@@ -51,7 +51,7 @@ function sendMail(content, flag, mailListFlag, groupMail) {
     //副本
     // cc: 'bmi.cfc@sofivagenomics.com.tw',
     //密件副本
-    bcc: "bmi.cfc@sofivagenomics.com.tw",
+    // bcc: "bmi.cfc@sofivagenomics.com.tw",
     //主旨
     subject: subjectTitle, // Subject line
     //純文字
@@ -81,8 +81,9 @@ function sendMail(content, flag, mailListFlag, groupMail) {
  * @returns
  */
 function writeMailContent(data, mailListFlag, groupMail) {
+  // console.log("data: " + JSON.stringify(data));
   // console.log(data);
-  const tempUrl = "http://192.168.116.232/TMSS2/#/plot";
+  const tempUrl = "http://192.168.116.232.xip.io/TMSS2/#/plot";
   let flag = 0;
   flag = data.length > 0 ? 1 : 0;
   let content = `
@@ -103,9 +104,9 @@ function writeMailContent(data, mailListFlag, groupMail) {
           <th style = "border-bottom: 1px solid #ddd; padding:10px 0px; background-color: #6bc541;"> RefID </th>
           <th style = "border-bottom: 1px solid #ddd; background-color: #6bc541;"> Floor </th>
           <th style = "border-bottom: 1px solid #ddd; background-color: #6bc541;"> RefType </th>
-          <th style = "border-bottom: 1px solid #ddd; background-color: #6bc541;"> Accept Low </th>
-          <th style = "border-bottom: 1px solid #ddd; background-color: #6bc541;"> Avg Temp </th>
-          <th style = "border-bottom: 1px solid #ddd; background-color: #6bc541;"> Accept High </th>
+          <th style = "border-bottom: 1px solid #ddd; background-color: #6bc541;"> Alarm Low </th>
+          <th style = "border-bottom: 1px solid #ddd; background-color: #6bc541;"> Alarm Temp </th>
+          <th style = "border-bottom: 1px solid #ddd; background-color: #6bc541;"> Alarm High </th>
           <th style = "border-bottom: 1px solid #ddd; background-color: #6bc541;"> Owner </th>
           <th style = "border-bottom: 1px solid #ddd; background-color: #6bc541;"> Event Time </th>
         </tr>`;
@@ -115,9 +116,9 @@ function writeMailContent(data, mailListFlag, groupMail) {
             <td align='center' style='border-bottom: 1px solid #ddd; padding:10px 0px;'>${data[index].RefID}</td>
             <td align='center' style='border-bottom: 1px solid #ddd;'>${data[index].Floor}</td>
             <td align='center' style='border-bottom: 1px solid #ddd;'>${data[index].RefType}</td>
-            <td align='center' style='border-bottom: 1px solid #ddd;'>${data[index].Accept_lo}</td>
-            <td align='center' style='border-bottom: 1px solid #ddd;'>${data[index].AvgTemp}</td>
-            <td align='center' style='border-bottom: 1px solid #ddd;'>${data[index].Accept_hi}</td>
+            <td align='center' style='border-bottom: 1px solid #ddd;'>${data[index].AlarmLow}</td>
+            <td align='center' style='border-bottom: 1px solid #ddd;'>${data[index].alarmTemp}</td>
+            <td align='center' style='border-bottom: 1px solid #ddd;'>${data[index].AlarmHigh}</td>
             <td align='center' style='border-bottom: 1px solid #ddd;'>${data[index].Owner}</td>
             <td align='center' style='border-bottom: 1px solid #ddd;'>${data[index].MidTime}</td>
           </tr>`;
@@ -166,11 +167,10 @@ cron.schedule("10,40 * * * *", function() {
       mailList = [];
       const data = res.data;
       data.forEach(el => {
-        console.log(el.NodeName, el.AvgTemp);
+        // console.log(el.NodeName, el.AvgTemp);
         if (el.AvgTemp === "故障" || el.AvgTemp === "除霜") {
           return true;
         } else if (el.AvgTemp === "null") {
-          console.log("123");
           alertData.push({
             NodeName: el.NodeName,
             RefID: el.RefID,
@@ -181,13 +181,13 @@ cron.schedule("10,40 * * * *", function() {
             Accept_hi: el.Accept_hi,
             Owner: el.Owner,
             Email: el.Email,
-            MidTime: el.MidTime
+            MidTime: el.MidTime,
+            alarmTemp: el.AvgTemp,
+            AlarmLow: el.AlarmLow,
+            AlarmHigh: el.AlarmHigh
           });
           mailList.push(el.Email);
-        } else if (
-          parseFloat(el.AvgTemp) < parseFloat(el.Accept_lo) ||
-          parseFloat(el.AvgTemp) > parseFloat(el.Accept_hi)
-        ) {
+        } else if (parseFloat(el.AvgTemp) < parseFloat(el.AlarmLow) || parseFloat(el.AvgTemp) > parseFloat(el.AlarmHigh)) {
           alertData.push({
             NodeName: el.NodeName,
             RefID: el.RefID,
@@ -198,10 +198,13 @@ cron.schedule("10,40 * * * *", function() {
             Accept_hi: el.Accept_hi,
             Owner: el.Owner,
             Email: el.Email,
-            MidTime: el.MidTime
+            MidTime: el.MidTime,
+            alarmTemp: el.AvgTemp,
+            AlarmLow: el.AlarmLow,
+            AlarmHigh: el.AlarmHigh
           });
           mailList.push(el.Email);
-        }
+        } 
       });
       mailList = [...new Set(mailList)];
       writeMailContent(alertData, "primary");
@@ -220,7 +223,10 @@ cron.schedule("10,40 * * * *", function() {
               Accept_hi: item.Accept_hi,
               Owner: item.Owner,
               Email: item.Email,
-              MidTime: item.MidTime
+              MidTime: item.MidTime,
+              alarmTemp: item.alarmTemp,
+              AlarmLow: item.AlarmLow,
+              AlarmHigh: item.AlarmHigh
             });
           }
         });
