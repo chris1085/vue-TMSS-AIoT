@@ -183,16 +183,17 @@
               <td class="align-middle">{{ node.Owner }}</td>
               <td class="align-middle">{{ node.RefType }} °C</td>
               <td class="align-middle">{{ node.AvgTemp }} °C</td>
-              <td class="align-middle status">{{ node.SignedStatus }}</td>
-              <td class="align-middle">{{ node.Notes }}</td>
+              <td class="align-middle status">{{ node.Status }}</td>
+              <td class="align-middle">{{ node.Note }}</td>
               <td class="align-middle">
                 <input
                   type="checkbox"
                   name="checkbox[]"
                   :value="index"
-                  :checked="typeof node.SignedStatus !== 'undefined'"
+                  :checked="node.Status !== null && node.Status !== ''"
                   :disabled="
-                    typeof node.SignedStatus !== 'undefined' || userName === ''
+                    userName === '' ||
+                      (node.Status !== null && node.Status !== '')
                   "
                 />
               </td>
@@ -293,7 +294,7 @@ export default {
           this.uniqueNodes = this.tempNodes;
           console.log(res.data);
           this.tempNodes = this.tempNodes.sort(function(a, b) {
-            return a.RefID > b.RefID ? 1 : -1;
+            return a.Status > b.Status ? 1 : -1;
           });
 
           // console.log(res.data);
@@ -534,7 +535,7 @@ export default {
 
           vm.tempNodes.forEach(el => {
             if (el.RefID === nodeName) {
-              el.SignedStatus = vm.userName + " " + signDate;
+              el.Status = vm.userName + " " + signDate;
             }
           });
         }
