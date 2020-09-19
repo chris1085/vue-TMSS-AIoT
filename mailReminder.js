@@ -13,7 +13,7 @@ function sendMail(content, flag, mailListFlag, groupMail) {
   if (flag == false) {
     return;
   }
-  const subjectTitle = "冰箱溫度異常警示";
+  const subjectTitle = "每日冰箱查核警示";
   //引用 nodemailer
   const nodemailer = require("nodemailer");
 
@@ -83,12 +83,12 @@ function sendMail(content, flag, mailListFlag, groupMail) {
 function writeMailContent(data, mailListFlag, groupMail) {
   // console.log("data: " + JSON.stringify(data));
   // console.log(data);
-  const tempUrl = "http://192.168.116.232.xip.io/TMSS2/#/plot";
+  const tempUrl = "http://192.168.116.232.xip.io/TMSS2/#/";
   let flag = 0;
   flag = data.length > 0 ? 1 : 0;
   let content = `
-    <h2>TMSS Notify</h2>
-    <p>The average temperature exceeded the threshold. Click<a href="${tempUrl}"> here</a> to check status.</p>
+    <h2>TMSS Signature Reminder Notify</h2>
+    <p>The status of signature was unsigned in 3 days. Click<a href="${tempUrl}"> here</a> to check status.</p>
     <p>The information is summerized below:</p>
     <table style = "border-collapse: collapse; width:800px;">
       <col width = "15%">
@@ -104,11 +104,8 @@ function writeMailContent(data, mailListFlag, groupMail) {
           <th style = "border-bottom: 1px solid #ddd; padding:10px 0px; background-color: #6bc541;"> RefID </th>
           <th style = "border-bottom: 1px solid #ddd; background-color: #6bc541;"> Floor </th>
           <th style = "border-bottom: 1px solid #ddd; background-color: #6bc541;"> RefType </th>
-          <th style = "border-bottom: 1px solid #ddd; background-color: #6bc541;"> Alarm Low </th>
-          <th style = "border-bottom: 1px solid #ddd; background-color: #6bc541;"> Alarm Temp </th>
-          <th style = "border-bottom: 1px solid #ddd; background-color: #6bc541;"> Alarm High </th>
           <th style = "border-bottom: 1px solid #ddd; background-color: #6bc541;"> Owner </th>
-          <th style = "border-bottom: 1px solid #ddd; background-color: #6bc541;"> Event Time </th>
+          <th style = "border-bottom: 1px solid #ddd; background-color: #6bc541;"> Date </th>
         </tr>`;
 
   for (let index = 0; index < data.length; index++) {
@@ -116,11 +113,8 @@ function writeMailContent(data, mailListFlag, groupMail) {
             <td align='center' style='border-bottom: 1px solid #ddd; padding:10px 0px;'>${data[index].RefID}</td>
             <td align='center' style='border-bottom: 1px solid #ddd;'>${data[index].Floor}</td>
             <td align='center' style='border-bottom: 1px solid #ddd;'>${data[index].RefType}</td>
-            <td align='center' style='border-bottom: 1px solid #ddd;'>${data[index].AlarmLow}</td>
-            <td align='center' style='border-bottom: 1px solid #ddd;'>${data[index].alarmTemp}</td>
-            <td align='center' style='border-bottom: 1px solid #ddd;'>${data[index].AlarmHigh}</td>
             <td align='center' style='border-bottom: 1px solid #ddd;'>${data[index].Owner}</td>
-            <td align='center' style='border-bottom: 1px solid #ddd;'>${data[index].MidTime}</td>
+            <td align='center' style='border-bottom: 1px solid #ddd;'>${data[index].TempDate}</td>
           </tr>`;
   }
 
@@ -153,61 +147,34 @@ const cron = require("node-cron");
 // const writeFile = (filename, content) => {
 //   fs.writeFile(filename, content, () => {});
 // };
-const date = new Date().toISOString().slice(0, 10);
-const url = "http://192.168.116.232/tms_rest/last30.php";
+// const date = new Date().toISOString().slice(0, 10);
+const url = "http://192.168.116.232/tms_rest/signReminder.php";
 // const recordPath = `/opt/lampp/htdocs/TMSS2/nodeJS/records${date}.txt`;
 // console.log(recordPath);
-cron.schedule("10,40 * * * *", function() {
+cron.schedule("0 12 * * *", function() {
   let alertData = [];
   let mailList = [];
   axios
-    .get(`${url}`, { params: { Date: date } })
+    .get(`${url}`)
     .then(res => {
       alertData = [];
       mailList = [];
       const data = res.data;
+      // console.log(data);
       data.forEach(el => {
+        alertData.push({
+          NodeName: el.NodeName,
+          RefID: el.RefID,
+          Floor: el.Floor,
+          RefType: el.RefType,
+          Accept_lo: el.Accept_lo,
+          Accept_hi: el.Accept_hi,
+          Owner: el.Owner,
+          Email: el.Email,
+          TempDate: el.Date
+        });
+        mailList.push(el.Email);
         // console.log(el.NodeName, el.AvgTemp);
-        if (el.AvgTemp === "故障" || el.AvgTemp === "除霜") {
-          return true;
-        } else if (el.AvgTemp === "null") {
-          alertData.push({
-            NodeName: el.NodeName,
-            RefID: el.RefID,
-            Floor: el.Floor,
-            RefType: el.RefType,
-            Accept_lo: el.Accept_lo,
-            AvgTemp: el.AvgTemp,
-            Accept_hi: el.Accept_hi,
-            Owner: el.Owner,
-            Email: el.Email,
-            MidTime: el.MidTime,
-            alarmTemp: el.AvgTemp,
-            AlarmLow: el.AlarmLow,
-            AlarmHigh: el.AlarmHigh
-          });
-          mailList.push(el.Email);
-        } else if (
-          parseFloat(el.AvgTemp) < parseFloat(el.AlarmLow) ||
-          parseFloat(el.AvgTemp) > parseFloat(el.AlarmHigh)
-        ) {
-          alertData.push({
-            NodeName: el.NodeName,
-            RefID: el.RefID,
-            Floor: el.Floor,
-            RefType: el.RefType,
-            Accept_lo: el.Accept_lo,
-            AvgTemp: el.AvgTemp,
-            Accept_hi: el.Accept_hi,
-            Owner: el.Owner,
-            Email: el.Email,
-            MidTime: el.MidTime,
-            alarmTemp: el.AvgTemp,
-            AlarmLow: el.AlarmLow,
-            AlarmHigh: el.AlarmHigh
-          });
-          mailList.push(el.Email);
-        }
       });
       mailList = [...new Set(mailList)];
       writeMailContent(alertData, "primary");
@@ -222,14 +189,10 @@ cron.schedule("10,40 * * * *", function() {
               Floor: item.Floor,
               RefType: item.RefType,
               Accept_lo: item.Accept_lo,
-              AvgTemp: item.AvgTemp,
               Accept_hi: item.Accept_hi,
               Owner: item.Owner,
               Email: item.Email,
-              MidTime: item.MidTime,
-              alarmTemp: item.alarmTemp,
-              AlarmLow: item.AlarmLow,
-              AlarmHigh: item.AlarmHigh
+              TempDate: item.Date
             });
           }
         });

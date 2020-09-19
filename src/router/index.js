@@ -2,7 +2,7 @@ import Vue from "vue";
 import VueRouter from "vue-router";
 // import Home from '../views/Home.vue';
 import Table from "../views/Table.vue";
-import TableResult from "@/components/table/TableResult.vue";
+// import TableResult from "@/components/table/TableResult.vue";
 import Plot from "../views/Plot.vue";
 import Login from "@/components/Login.vue";
 
@@ -28,11 +28,11 @@ const routes = [
     name: "Table",
     component: Table,
     children: [
-      {
-        path: "TableResult",
-        name: "TableResult",
-        component: TableResult
-      }
+      // {
+      //   path: "TableResult",
+      //   name: "TableResult",
+      //   component: TableResult
+      // }
     ]
   },
   {
