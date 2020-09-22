@@ -3,7 +3,9 @@
   <div>
     <nav class="navbar navbar-expand-sm navbar-light bg-white">
       <div class="container">
-        <a class="navbar-brand" href="./index.html"
+        <a
+          class="navbar-brand"
+          href="http://192.168.116.232.xip.io/TMSS2/?#/table"
           ><img src="../assets/sofiva_logo.jpg" width="240" height="80" alt=""
         /></a>
 
