@@ -2,7 +2,9 @@
   <div>
     <nav class="navbar navbar-expand-sm navbar-light bg-white">
       <div class="container">
-        <a class="navbar-brand" href="./index.html"
+        <a
+          class="navbar-brand"
+          href="http://192.168.116.232.xip.io/TMSS2/?#/table"
           ><img src="../assets/sofiva_logo.jpg" width="240" height="80" alt=""
         /></a>
 
@@ -63,6 +65,45 @@
     <div class="rainbow-box"></div>
     <MainTable :userName="userName" />
     <Footer />
+
+    <div
+      class="modal fade"
+      id="loginAlert"
+      tabindex="-1"
+      aria-labelledby="loginAlertLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="loginAlertLabel">尚未登入</h5>
+            <button
+              type="button"
+              class="close"
+              data-dismiss="modal"
+              aria-label="Close"
+              @click.prevent="returnLogin"
+            >
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            目前尚未登入，請至登入頁面重新登入
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-primary"
+              @click.prevent="returnLogin"
+            >
+              返回登入頁面
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="modalBackdrop" class="modal-backdrop fade"></div>
   </div>
 </template>
 
@@ -75,6 +116,8 @@
 import MainTable from "@/components/table/Main.vue";
 import Footer from "@/components/Footer.vue";
 import GoogleLogin from "vue-google-login";
+import $ from "jquery";
+
 // import Vue from "vue";
 // Vue.GoogleAuth.then(auth2 => {
 //   console.log(auth2.isSignedIn.get());
@@ -145,6 +188,7 @@ export default {
         console.log("User signed out.");
       });
       auth2.disconnect();
+      this.$router.push("login");
       location.reload();
     },
     removeCookies() {
@@ -155,12 +199,37 @@ export default {
         document.cookie =
           key[0] + " =; expires = Thu, 01 Jan 1970 00:00:00 UTC";
       }
+    },
+    returnLogin() {
+      this.$router.push("login");
+    }
+  },
+  created() {
+    const userCookie = this.getCookie("UserName");
+    console.log("usercookie:" + userCookie);
+    this.userName = userCookie;
+    if (this.userName == "") {
+      $("body").addClass("modal-open");
+      $("body").css({ "padding-right": "17px" });
+    } else {
+      $("body").removeClass("modal-open");
     }
   },
   mounted() {
     const userCookie = this.getCookie("UserName");
     console.log("usercookie:" + userCookie);
     this.userName = userCookie;
+    if (this.userName == "") {
+      $("#loginAlert").addClass("show");
+      $("#loginAlert").css({ display: "block", "padding-right": "17px" });
+      $("#loginAlert").removeAttr("aria-hidden");
+      $("#loginAlert").attr("aria-modal", "true");
+      $("#loginAlert").attr("role", "dialog");
+      $("#modalBackdrop").addClass("show");
+    } else {
+      $("#modalBackdrop").removeClass("modal-backdrop");
+      $("body").removeClass("modal-open");
+    }
   }
 };
 </script>
