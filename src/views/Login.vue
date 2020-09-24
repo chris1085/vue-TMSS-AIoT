@@ -43,23 +43,27 @@ export default {
   },
   methods: {
     onSuccess(googleUser) {
-      console.log(googleUser);
+      // console.log(googleUser);
 
       // This only gets the user information: id, name, imageUrl and email
-      console.log(googleUser.getBasicProfile());
+      // console.log(googleUser.getBasicProfile());
       this.userName = googleUser.getBasicProfile().Ad;
-      this.email = googleUser.getBasicProfile().Xt;
+      this.email = googleUser.getBasicProfile().getEmail();
 
       const url = "http://192.168.116.232/tms_rest/authorizedCheck.php";
       axios
         .get(`${url}`)
         .then(res => {
-          const mailAuthorized = res.data;
-          const authorizedIndex = mailAuthorized.indexOf(this.email) > -1;
-          console.log(mailAuthorized);
-          console.log(authorizedIndex);
+          const mailData = res.data;
+          let mailAuthList = [];
+          mailData.forEach(el => {
+            mailAuthList.push(el.Email);
+          });
 
-          if (authorizedIndex) {
+          const authFlag = mailAuthList.some(mail => mail === this.email);
+          // console.log(mailAuthList, authFlag, this.email);
+
+          if (authFlag) {
             const expire_days = 1; // 過期日期(天)
             const d = new Date();
             d.setTime(d.getTime() + expire_days * 24 * 60 * 60 * 1000);
