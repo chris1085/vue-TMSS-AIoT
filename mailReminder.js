@@ -83,7 +83,7 @@ function sendMail(content, flag, mailListFlag, groupMail) {
 function writeMailContent(data, mailListFlag, groupMail) {
   // console.log("data: " + JSON.stringify(data));
   // console.log(data);
-  const tempUrl = "http://192.168.116.232.xip.io/TMSS2/#/";
+  const tempUrl = "http://192.168.116.232.xip.io/TMSS2/#/table";
   let flag = 0;
   flag = data.length > 0 ? 1 : 0;
   let content = `
