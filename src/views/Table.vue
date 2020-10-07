@@ -107,7 +107,7 @@
   </div>
 </template>
 
-<script src="https://apis.google.com/js/platform.js" async defer></script>
+<script src="https://apis.google.com/js/platform.js"></script>
 <script src="vueAuth.js"></script>
 <script>
 // @ is an alias to /src
@@ -147,8 +147,6 @@ export default {
   },
   methods: {
     onSuccess(googleUser) {
-      console.log(googleUser);
-
       // This only gets the user information: id, name, imageUrl and email
       console.log(googleUser.getBasicProfile());
       this.userName = googleUser.getBasicProfile().Ad;
@@ -160,7 +158,6 @@ export default {
     },
     onFailure(googleUser) {
       console.log(googleUser);
-
       // This only gets the user information: id, name, imageUrl and email
       console.log(googleUser.getBasicProfile());
       this.userName = "";
@@ -206,7 +203,7 @@ export default {
   },
   created() {
     const userCookie = this.getCookie("UserName");
-    console.log("usercookie:" + userCookie);
+    // console.log("usercookie:" + userCookie);
     this.userName = userCookie;
     if (this.userName == "") {
       $("body").addClass("modal-open");

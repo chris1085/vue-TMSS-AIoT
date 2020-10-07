@@ -20,7 +20,7 @@
   </div>
 </template>
 
-<script src="https://apis.google.com/js/platform.js" async defer></script>
+<script src="https://apis.google.com/js/platform.js"></script>
 <script src="vueAuth.js"></script>
 <script>
 import GoogleLogin from "vue-google-login";

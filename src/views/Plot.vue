@@ -245,8 +245,18 @@ export default {
       axios
         .get(`${url}`, { params: { Date: date } })
         .then(res => {
+          this.tempData = [];
+          this.filterInfo = {
+            floor: [],
+            owner: [],
+            temp: [],
+            tempFloor: [],
+            tempOwner: [],
+            tempTemp: []
+          };
+          this.uniqueNodes = [];
           this.tempData = res.data;
-          // console.log(res.data);
+          console.log(res.data);
           let tempNodesName = [];
           this.tempNodes = [];
 

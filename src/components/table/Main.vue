@@ -182,9 +182,28 @@
               <td class="align-middle">{{ node.Floor }}</td>
               <td class="align-middle">{{ node.Owner }}</td>
               <td class="align-middle">{{ node.RefType }} °C</td>
-              <td class="align-middle">{{ node.AvgTemp }} °C</td>
+              <td
+                class="align-middle"
+                :class="{
+                  'over-temp':
+                    parseFloat(node.AvgTemp) > parseFloat(node.Accept_hi) ||
+                    parseFloat(node.AvgTemp) < parseFloat(node.Accept_lo)
+                }"
+              >
+                {{ node.AvgTemp }} °C
+              </td>
               <td class="align-middle status">{{ node.Status }}</td>
-              <td class="align-middle">{{ node.Note }}</td>
+              <td class="align-middle">
+                {{ node.Note }}
+                <input
+                  type="email"
+                  class="form-control"
+                  id="noteInput"
+                  aria-describedby="noteInput"
+                  placeholder="如有故障、除霜、維修之情形，請輸入此欄位"
+                  v-if="node.Note != ''"
+                />
+              </td>
               <td class="align-middle">
                 <input
                   type="checkbox"
@@ -210,6 +229,47 @@
           >
             Sign
           </button>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="modal fade"
+      id="signAlert"
+      tabindex="-1"
+      aria-labelledby="signAlertLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="signAlertLabel">再次確認</h5>
+            <button
+              type="button"
+              class="close"
+              data-dismiss="modal"
+              aria-label="Close"
+              @click.prevent="returnLogin"
+            >
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <p>目前登入使用者: {{ userName }}</p>
+            <p>勾選簽核保管人: {{ userName }}</p>
+            <p style="color:red">
+              注意:
+              請確認簽核冰箱及保管人是否正確，如果簽核錯誤，小心系統會爆炸喔喔喔!!
+            </p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" @click.prevent="">
+              取消
+            </button>
+            <button type="button" class="btn btn-primary" @click.prevent="">
+              確定
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -292,7 +352,6 @@ export default {
           this.tempData = res.data;
           this.tempNodes = res.data;
           this.uniqueNodes = this.tempNodes;
-          console.log(res.data);
           this.tempNodes = this.tempNodes.sort(function(a, b) {
             return a.Status > b.Status ? 1 : -1;
           });
@@ -328,7 +387,7 @@ export default {
       console.log(this.userName);
       this.uniqueNodes = dataRender;
 
-      // console.log(this.uniqueNodes);
+      console.log(this.uniqueNodes);
     },
     checkAll(filterCat) {
       let data = this.tempData;
