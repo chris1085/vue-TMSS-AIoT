@@ -174,13 +174,16 @@
                   :disabled="userName === ''"
                 />
               </th>
+              <th scope="col" rowspan="2" class="align-middle">
+                Email Alarm
+              </th>
             </tr>
           </thead>
           <tbody v-for="(node, index) in uniqueNodes" :key="index">
             <tr>
               <td class="align-middle node">{{ node.RefID }}</td>
               <td class="align-middle">{{ node.Floor }}</td>
-              <td class="align-middle">{{ node.Owner }}</td>
+              <td class="align-middle nodeOwner">{{ node.Owner }}</td>
               <td class="align-middle">{{ node.RefType }} °C</td>
               <td
                 class="align-middle"
@@ -198,10 +201,15 @@
                 <input
                   type="email"
                   class="form-control"
-                  id="noteInput"
+                  :id="'noteInput_' + node.RefID"
                   aria-describedby="noteInput"
-                  placeholder="如有故障、除霜、維修之情形，請輸入此欄位"
-                  v-if="node.Note != ''"
+                  placeholder="Ex: 故障、除霜、維修中"
+                  v-if="
+                    node.Note == null &&
+                      userName !== '' &&
+                      (node.Status == null || node.Status == '')
+                  "
+                  @keydown.enter.13="addNote(node.RefID, $event.target.value)"
                 />
               </td>
               <td class="align-middle">
@@ -216,16 +224,35 @@
                   "
                 />
               </td>
+              <td class="align-middle">
+                <toggle-button
+                  :value="node.Switch"
+                  :labels="{ checked: 'On', unchecked: 'Off' }"
+                  :color="{ checked: '#17A4BA' }"
+                  @change="emailToggleChange(node.RefID, $event.value)"
+                />
+              </td>
             </tr>
           </tbody>
         </table>
       </div>
       <div class="d-flex pb-5 w-100">
-        <div class="download ml-auto pt-4">
+        <div class="download ml-auto pt-4 mr-3">
           <button
             type="button"
             class="btn btn-info"
-            @click.prevent="signSelect"
+            @click.prevent="addNoteAll"
+          >
+            Save Note
+          </button>
+        </div>
+        <div class="download pt-4">
+          <button
+            type="button"
+            class="btn btn-info"
+            data-toggle="modal"
+            data-target="#signAlert"
+            @click.prevent="checkOwner()"
           >
             Sign
           </button>
@@ -240,33 +267,40 @@
       aria-labelledby="signAlertLabel"
       aria-hidden="true"
     >
-      <div class="modal-dialog">
+      <div class="modal-dialog modal-lg">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="signAlertLabel">再次確認</h5>
+            <h5 class="modal-title" id="signAlertLabel">溫馨提示</h5>
             <button
               type="button"
               class="close"
               data-dismiss="modal"
               aria-label="Close"
-              @click.prevent="returnLogin"
             >
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
           <div class="modal-body">
-            <p>目前登入使用者: {{ userName }}</p>
-            <p>勾選簽核保管人: {{ userName }}</p>
+            <p>當前登入使用者: {{ userName }}</p>
+            <p>已勾選冰箱保管人: {{ tempSignOwnerStr }}</p>
             <p style="color:red">
               注意:
-              請確認簽核冰箱及保管人是否正確，如果簽核錯誤，小心系統會爆炸喔喔喔!!
+              請確認已勾選冰箱「保管人」及當前登入「使用者」是否正確，如果簽核錯誤，小心系統會爆炸喔喔喔!!
             </p>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-primary" @click.prevent="">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-dismiss="modal"
+            >
               取消
             </button>
-            <button type="button" class="btn btn-primary" @click.prevent="">
+            <button
+              type="button"
+              class="btn btn-info"
+              @click.prevent="signSelect"
+            >
               確定
             </button>
           </div>
@@ -281,11 +315,13 @@ import Loading from "vue-loading-overlay";
 // import Footer from "@/components/Footer.vue";
 // import Nav from "@/components/Nav.vue";
 import DatePicker from "vue2-datepicker";
+// import { mdbSwitch } from "mdbvue";
 import "vue2-datepicker/index.css";
 import $ from "jquery";
 import axios from "axios";
 axios.defaults.withCredentials = false;
 import "vue-loading-overlay/dist/vue-loading.css";
+import { ToggleButton } from "vue-js-toggle-button";
 
 const today = new Date();
 today.setHours(0, 0, 0, 0);
@@ -294,12 +330,14 @@ export default {
   props: {
     userName: String
   },
-  components: { loading: Loading, DatePicker },
+  components: { loading: Loading, DatePicker, ToggleButton },
   data() {
     return {
       userInfo: {
-        name: "CFC"
+        name: ""
       },
+      checked: true,
+      tempNote: "",
       isCheckFloorAll: true,
       isCheckTempAll: true,
       isCheckOwnerAll: true,
@@ -309,6 +347,8 @@ export default {
       refInfo: [],
       tempData: [],
       tempNodes: [],
+      tempSignOwner: [],
+      tempSignOwnerStr: "",
       uniqueNodes: [],
       dateChoosed: new Date(Date.now() - 864e5).toISOString().slice(0, 10),
       tempDate: "",
@@ -600,7 +640,84 @@ export default {
         }
       });
 
+      $("#signAlert").modal("hide");
+
       this.putData();
+    },
+    addNote(id, tempNote) {
+      console.log(id, tempNote);
+      const signDate = new Date(Date.now()).toISOString().slice(0, 10);
+      this.tempNodes.forEach(el => {
+        if (el.RefID === id && tempNote != "") {
+          el.Note = tempNote + ", " + this.userName + " " + signDate;
+          console.log(el);
+        }
+      });
+    },
+    addNoteAll() {
+      const signDate = new Date(Date.now()).toISOString().slice(0, 10);
+
+      this.tempNodes.forEach(node => {
+        if ($("#noteInput_" + node.RefID).val() !== undefined) {
+          if ($("#noteInput_" + node.RefID).val() !== "") {
+            console.log(node.RefID, $("#noteInput_" + node.RefID).val());
+            node.Note =
+              $("#noteInput_" + node.RefID).val() +
+              ", " +
+              this.userName +
+              " " +
+              signDate;
+          }
+        }
+      });
+
+      this.putData();
+    },
+    emailToggleChange(id, toggleValue) {
+      this.isLoading = true;
+
+      this.tempNodes.forEach(el => {
+        if (el.RefID === id) {
+          el["Switch"] = toggleValue;
+          console.log(el, el.Switch, toggleValue);
+        }
+      });
+
+      setTimeout(() => {
+        this.isLoading = false;
+        console.log(id);
+      }, 3000);
+      this.putData();
+    },
+    checkOwner() {
+      this.tempSignOwner = [];
+      this.tempSignOwnerStr = "";
+      let tempOwner = [];
+      $("input[name='checkbox[]']").each(function(index, el) {
+        if (!el.disabled && el.checked) {
+          let nodeName = $(this)
+            .parent()
+            .siblings(".nodeOwner")
+            .text();
+
+          if (nodeName !== undefined) {
+            tempOwner.push(nodeName);
+          }
+        }
+      });
+      this.tempSignOwner = [...new Set(tempOwner)];
+      this.tempSignOwner.forEach((el, i) => {
+        if (i == 0) {
+          this.tempSignOwnerStr += el;
+        } else {
+          this.tempSignOwnerStr += ", " + el;
+        }
+      });
+
+      this.tempSignOwnerStr =
+        this.tempSignOwner.length == 0 ? "尚無勾選" : this.tempSignOwnerStr;
+
+      console.log(this.tempSignOwnerStr);
     }
   },
   computed: {},
