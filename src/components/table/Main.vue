@@ -183,7 +183,7 @@
             <tr>
               <td class="align-middle node">{{ node.RefID }}</td>
               <td class="align-middle">{{ node.Floor }}</td>
-              <td class="align-middle">{{ node.Owner }}</td>
+              <td class="align-middle nodeOwner">{{ node.Owner }}</td>
               <td class="align-middle">{{ node.RefType }} °C</td>
               <td
                 class="align-middle"
@@ -250,7 +250,9 @@
           <button
             type="button"
             class="btn btn-info"
-            @click.prevent="signSelect"
+            data-toggle="modal"
+            data-target="#signAlert"
+            @click.prevent="checkOwner()"
           >
             Sign
           </button>
@@ -265,33 +267,40 @@
       aria-labelledby="signAlertLabel"
       aria-hidden="true"
     >
-      <div class="modal-dialog">
+      <div class="modal-dialog modal-lg">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="signAlertLabel">再次確認</h5>
+            <h5 class="modal-title" id="signAlertLabel">溫馨提示</h5>
             <button
               type="button"
               class="close"
               data-dismiss="modal"
               aria-label="Close"
-              @click.prevent="returnLogin"
             >
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
           <div class="modal-body">
-            <p>目前登入使用者: {{ userName }}</p>
-            <p>勾選簽核保管人: {{ userName }}</p>
+            <p>當前登入使用者: {{ userName }}</p>
+            <p>已勾選冰箱保管人: {{ tempSignOwnerStr }}</p>
             <p style="color:red">
               注意:
-              請確認簽核冰箱及保管人是否正確，如果簽核錯誤，小心系統會爆炸喔喔喔!!
+              請確認已勾選冰箱「保管人」及當前登入「使用者」是否正確，如果簽核錯誤，小心系統會爆炸喔喔喔!!
             </p>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-primary" @click.prevent="">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-dismiss="modal"
+            >
               取消
             </button>
-            <button type="button" class="btn btn-primary" @click.prevent="">
+            <button
+              type="button"
+              class="btn btn-info"
+              @click.prevent="signSelect"
+            >
               確定
             </button>
           </div>
@@ -338,6 +347,8 @@ export default {
       refInfo: [],
       tempData: [],
       tempNodes: [],
+      tempSignOwner: [],
+      tempSignOwnerStr: "",
       uniqueNodes: [],
       dateChoosed: new Date(Date.now() - 864e5).toISOString().slice(0, 10),
       tempDate: "",
@@ -629,6 +640,8 @@ export default {
         }
       });
 
+      $("#signAlert").modal("hide");
+
       this.putData();
     },
     addNote(id, tempNote) {
@@ -675,6 +688,36 @@ export default {
         console.log(id);
       }, 3000);
       this.putData();
+    },
+    checkOwner() {
+      this.tempSignOwner = [];
+      this.tempSignOwnerStr = "";
+      let tempOwner = [];
+      $("input[name='checkbox[]']").each(function(index, el) {
+        if (!el.disabled && el.checked) {
+          let nodeName = $(this)
+            .parent()
+            .siblings(".nodeOwner")
+            .text();
+
+          if (nodeName !== undefined) {
+            tempOwner.push(nodeName);
+          }
+        }
+      });
+      this.tempSignOwner = [...new Set(tempOwner)];
+      this.tempSignOwner.forEach((el, i) => {
+        if (i == 0) {
+          this.tempSignOwnerStr += el;
+        } else {
+          this.tempSignOwnerStr += ", " + el;
+        }
+      });
+
+      this.tempSignOwnerStr =
+        this.tempSignOwner.length == 0 ? "尚無勾選" : this.tempSignOwnerStr;
+
+      console.log(this.tempSignOwnerStr);
     }
   },
   computed: {},
