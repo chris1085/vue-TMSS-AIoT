@@ -174,6 +174,9 @@
                   :disabled="userName === ''"
                 />
               </th>
+              <th scope="col" rowspan="2" class="align-middle">
+                Email Alarm
+              </th>
             </tr>
           </thead>
           <tbody v-for="(node, index) in uniqueNodes" :key="index">
@@ -198,10 +201,15 @@
                 <input
                   type="email"
                   class="form-control"
-                  id="noteInput"
+                  :id="'noteInput_' + node.RefID"
                   aria-describedby="noteInput"
-                  placeholder="如有故障、除霜、維修之情形，請輸入此欄位"
-                  v-if="node.Note != ''"
+                  placeholder="Ex: 故障、除霜、維修中"
+                  v-if="
+                    node.Note == null &&
+                      userName !== '' &&
+                      (node.Status == null || node.Status == '')
+                  "
+                  @keydown.enter.13="addNote(node.RefID, $event.target.value)"
                 />
               </td>
               <td class="align-middle">
@@ -216,12 +224,29 @@
                   "
                 />
               </td>
+              <td class="align-middle">
+                <toggle-button
+                  :value="node.Switch"
+                  :labels="{ checked: 'On', unchecked: 'Off' }"
+                  :color="{ checked: '#17A4BA' }"
+                  @change="emailToggleChange(node.RefID, $event.value)"
+                />
+              </td>
             </tr>
           </tbody>
         </table>
       </div>
       <div class="d-flex pb-5 w-100">
-        <div class="download ml-auto pt-4">
+        <div class="download ml-auto pt-4 mr-3">
+          <button
+            type="button"
+            class="btn btn-info"
+            @click.prevent="addNoteAll"
+          >
+            Save Note
+          </button>
+        </div>
+        <div class="download pt-4">
           <button
             type="button"
             class="btn btn-info"
@@ -281,11 +306,13 @@ import Loading from "vue-loading-overlay";
 // import Footer from "@/components/Footer.vue";
 // import Nav from "@/components/Nav.vue";
 import DatePicker from "vue2-datepicker";
+// import { mdbSwitch } from "mdbvue";
 import "vue2-datepicker/index.css";
 import $ from "jquery";
 import axios from "axios";
 axios.defaults.withCredentials = false;
 import "vue-loading-overlay/dist/vue-loading.css";
+import { ToggleButton } from "vue-js-toggle-button";
 
 const today = new Date();
 today.setHours(0, 0, 0, 0);
@@ -294,12 +321,14 @@ export default {
   props: {
     userName: String
   },
-  components: { loading: Loading, DatePicker },
+  components: { loading: Loading, DatePicker, ToggleButton },
   data() {
     return {
       userInfo: {
-        name: "CFC"
+        name: ""
       },
+      checked: true,
+      tempNote: "",
       isCheckFloorAll: true,
       isCheckTempAll: true,
       isCheckOwnerAll: true,
@@ -600,6 +629,51 @@ export default {
         }
       });
 
+      this.putData();
+    },
+    addNote(id, tempNote) {
+      console.log(id, tempNote);
+      const signDate = new Date(Date.now()).toISOString().slice(0, 10);
+      this.tempNodes.forEach(el => {
+        if (el.RefID === id && tempNote != "") {
+          el.Note = tempNote + ", " + this.userName + " " + signDate;
+          console.log(el);
+        }
+      });
+    },
+    addNoteAll() {
+      const signDate = new Date(Date.now()).toISOString().slice(0, 10);
+
+      this.tempNodes.forEach(node => {
+        if ($("#noteInput_" + node.RefID).val() !== undefined) {
+          if ($("#noteInput_" + node.RefID).val() !== "") {
+            console.log(node.RefID, $("#noteInput_" + node.RefID).val());
+            node.Note =
+              $("#noteInput_" + node.RefID).val() +
+              ", " +
+              this.userName +
+              " " +
+              signDate;
+          }
+        }
+      });
+
+      this.putData();
+    },
+    emailToggleChange(id, toggleValue) {
+      this.isLoading = true;
+
+      this.tempNodes.forEach(el => {
+        if (el.RefID === id) {
+          el["Switch"] = toggleValue;
+          console.log(el, el.Switch, toggleValue);
+        }
+      });
+
+      setTimeout(() => {
+        this.isLoading = false;
+        console.log(id);
+      }, 3000);
       this.putData();
     }
   },
