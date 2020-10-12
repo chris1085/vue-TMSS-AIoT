@@ -3,6 +3,11 @@
     <div
       class="container d-flex justify-content-center align-items-center my-5 flex-wrap flex-column"
     >
+      <img
+        src="../assets/loginLogo.png"
+        alt=""
+        style="width:886px;hieght:354.5px;"
+      />
       <form class="form-inline my-2 my-lg-0 ">
         <GoogleLogin
           class="btn btn-outline-primary my-2 my-sm-0 mr-1"

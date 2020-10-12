@@ -645,6 +645,7 @@ export default {
       this.putData();
     },
     addNote(id, tempNote) {
+      this.isLoading = true;
       console.log(id, tempNote);
       const signDate = new Date(Date.now()).toISOString().slice(0, 10);
       this.tempNodes.forEach(el => {
@@ -653,8 +654,15 @@ export default {
           console.log(el);
         }
       });
+
+      setTimeout(() => {
+        this.isLoading = false;
+      }, 1000);
+      this.putData();
     },
     addNoteAll() {
+      this.isLoading = true;
+
       const signDate = new Date(Date.now()).toISOString().slice(0, 10);
 
       this.tempNodes.forEach(node => {
@@ -670,6 +678,10 @@ export default {
           }
         }
       });
+
+      setTimeout(() => {
+        this.isLoading = false;
+      }, 1000);
 
       this.putData();
     },
